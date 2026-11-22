@@ -1,0 +1,6 @@
+fastapi>=0.115,<1
+uvicorn>=0.32,<1
+websockets>=13,<18
+grpcio>=1.68,<2
+protobuf>=5.29,<8
+segno>=1.6,<2

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#07090d">
+  <title>Pitboard</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body data-link="idle">
+  <header class="top">
+    <div class="brand">
+      <p class="mark">Pitboard</p>
+      <p class="pilot" id="pilot">LighterBurrito</p>
+    </div>
+    <div class="link-block">
+      <p class="lamp-row"><span class="lamp" id="lamp"></span><span id="link-label">Connecting</span></p>
+      <p class="sub" id="link-detail">Opening the local board.</p>
+    </div>
+    <div class="top-actions">
+      <p class="fps" id="fps"></p>
+      <button type="button" class="ghost" id="open-settings">Settings</button>
+    </div>
+  </header>
+
+  <section id="practice" class="banner practice" hidden>
+    Practice range. These numbers are simulated on this computer so you can use the board without Star Citizen. They are not from the game.
+  </section>
+  <section id="lanwarn" class="banner danger" hidden>
+    LAN access is on and unencrypted. Anyone on this network who has the link can read telemetry and send commands that are not marked hazardous.
+  </section>
+
+  <section id="guide" class="guide">
+    <div id="guide-offline">
+      <h2>Waiting for Star Citizen</h2>
+      <p id="guide-offline-detail">The game’s telemetry port is closed until you enable it and spawn your character.</p>
+      <div class="steps">
+        <article>
+          <h3>4.10.3 LIVE</h3>
+          <p>Close the game and the RSI Launcher, including its tray icon. In PowerShell:</p>
+          <pre>setx GRPC_CLIENT_SERVER_ENABLED true</pre>
+          <p>Start the launcher after that, then the game. The launcher only passes the variable on if it was opened afterwards. To turn it off later:</p>
+          <pre>[Environment]::SetEnvironmentVariable("GRPC_CLIENT_SERVER_ENABLED", $null, "User")</pre>
+        </article>
+        <article>
+          <h3>5.0 PTU</h3>
+          <p>Add one line to <code>user.cfg</code> in that channel’s folder, for example <code>C:\Program Files\Roberts Space Industries\StarCitizen\PTU\user.cfg</code>.</p>
+          <pre>server.game.telemetry.enabled=1</pre>
+          <p>After launch, <code>Game.log</code> in the same folder should mention <code>GameTelemetryService</code> and <code>127.0.0.1:2942</code>. The stream starts once your character has spawned. Commands such as emotes and ship toggles exist on this build; 4.10.3 LIVE is display only.</p>
+        </article>
+      </div>
+    </div>
+    <div id="guide-schema" hidden>
+      <h2>Schema not extracted yet</h2>
+      <p>Pitboard will not guess the game’s protobuf layout. Star Citizen embeds it in <code>StarCitizen.exe</code>. From this folder, in PowerShell:</p>
+      <pre>python tools\extract_proto.py --exe "C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Bin64\StarCitizen.exe"</pre>
+      <p>That writes <code>schema\extracted\</code>, which stays on this machine and is not committed. Then start Pitboard again. To click around first, use <code>python -m pitboard --mock</code>.</p>
+    </div>
+    <div id="guide-refused" hidden>
+      <h2>Practice schema refused</h2>
+      <p id="guide-refused-detail">The synthetic schema is only for the practice server. Point Pitboard at a descriptor set extracted from your own game.</p>
+    </div>
+    <div id="guide-mismatch" hidden>
+      <h2>Schema does not match the game</h2>
+      <p id="guide-mismatch-detail">Extract the descriptors again after a patch. The old file is still in schema\extracted.</p>
+    </div>
+  </section>
+
+  <nav class="tabs" aria-label="Board sections">
+    <button type="button" class="tab on" data-tab="character">Character</button>
+    <button type="button" class="tab" data-tab="ship">Ship</button>
+    <button type="button" class="tab" data-tab="actions">Actions</button>
+  </nav>
+
+  <main>
+    <section id="panel-character" class="panel" aria-label="Character"></section>
+    <section id="panel-ship" class="panel" hidden aria-label="Ship"></section>
+    <section id="panel-actions" class="panel" hidden aria-label="Actions"></section>
+  </main>
+
+  <footer class="foot">
+    Unofficial. Not affiliated with Cloud Imperium Games. The game’s own telemetry port is local and has no authentication. Pitboard stays on this computer unless you turn LAN access on.
+  </footer>
+
+  <dialog id="settings">
+    <form method="dialog">
+      <header>
+        <h2>Settings</h2>
+        <p id="settings-scope">These switches apply on this PC.</p>
+      </header>
+      <label class="check">
+        <input type="checkbox" id="set-danger">
+        <span>
+          <strong>Arm hazardous commands</strong>
+          <small>Self-destruct, eject, main power off, and opening or unlocking doors, ports, and cargo. Off by default. Each one still needs a hold on this PC. A phone on the LAN cannot send them.</small>
+        </span>
+      </label>
+      <label class="check">
+        <input type="checkbox" id="set-lan">
+        <span>
+          <strong>LAN access</strong>
+          <small>Off by default. Turning it on listens on every interface with no encryption. The link contains the access token. Use it only on a network you trust, then restart Pitboard. Restart is required before the bind changes.</small>
+        </span>
+      </label>
+      <p class="restart" id="restart-note" hidden>Restart Pitboard to apply the network bind.</p>
+      <label class="check">
+        <input type="checkbox" id="set-record">
+        <span>
+          <strong>Record this session</strong>
+          <small>Writes a JSONL log of vitals, ship state, and commands under the data folder. The access token is not written.</small>
+        </span>
+      </label>
+      <p class="record-path" id="record-path"></p>
+      <div id="share-block" hidden>
+        <h3>Phone or tablet link</h3>
+        <p class="warn-copy">Unencrypted. Anyone who opens this link can read the board and send non-hazardous commands.</p>
+        <input id="share-url" readonly>
+        <div class="share-row">
+          <button type="button" class="ghost" id="copy-link">Copy link</button>
+          <img id="share-qr" alt="QR code for the LAN link" width="160" height="160">
+        </div>
+      </div>
+      <div class="schema-note" id="schema-note"></div>
+      <div class="dialog-actions">
+        <button type="button" class="ghost" id="regen-token">New token</button>
+        <button type="submit" class="solid" value="close">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <p class="toast" id="toast" role="status" aria-live="polite"></p>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

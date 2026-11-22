@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pitboard"
+version = "0.1.0"
+description = "Local Star Citizen telemetry dashboard for LighterBurrito"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.32,<1",
+  "websockets>=13,<18",
+  "grpcio>=1.68,<2",
+  "protobuf>=5.29,<8",
+  "segno>=1.6,<2",
+]
+
+[project.scripts]
+pitboard = "pitboard.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["pitboard*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+pythonpath = ["."]

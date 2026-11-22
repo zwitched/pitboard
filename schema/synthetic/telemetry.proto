@@ -1,0 +1,150 @@
+// Synthetic stand-in used by Pitboard's practice server and tests.
+// This file is original. It is not extracted from StarCitizen.exe and it is
+// not the game's schema. Field names cover the categories the local telemetry
+// API is publicly described as carrying (vitals, vehicle, weapons, events).
+// Real descriptors come from tools/extract_proto.py and are gitignored.
+
+syntax = "proto3";
+
+package sc.game.telemetry.v1;
+
+service GameTelemetryService {
+  rpc TelemetryStream(TelemetryStreamRequest) returns (stream TelemetryFrame);
+  rpc ListTriggerableActions(ListActionsRequest) returns (ListActionsResponse);
+  rpc TriggerGameAction(TriggerActionRequest) returns (TriggerActionResponse);
+}
+
+message TelemetryStreamRequest {}
+
+message TelemetryFrame {
+  uint64 frame_index = 1;
+  int64 timestamp_unix_ms = 2;
+  CharacterVitals character = 3;
+  VehicleState vehicle = 4;
+  WeaponState weapons = 5;
+  repeated GameEvent events = 6;
+  ForceFeedback force_feedback = 7;
+  TurretState turret = 8;
+}
+
+message Vec3 {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}
+
+message CharacterVitals {
+  float health = 1;
+  float oxygen = 2;
+  float hunger = 3;
+  float thirst = 4;
+  float body_temperature_c = 5;
+  float outside_temperature_c = 6;
+  float heart_rate_bpm = 7;
+  float gravity_g = 8;
+  float pressure_kpa = 9;
+  float radiation = 10;
+  float intoxication = 11;
+  bool breathable_atmosphere = 12;
+  float balance = 13;
+  string posture = 14;
+  string crew_role = 15;
+  Vec3 position = 16;
+  string location_name = 17;
+}
+
+message VehicleState {
+  bool seated = 1;
+  string ship_name = 2;
+  string manufacturer = 3;
+  string model = 4;
+  string role = 5;
+  string flight_mode = 6;
+  bool flying = 7;
+  bool landed = 8;
+  float shield_front = 9;
+  float shield_rear = 10;
+  float shield_left = 11;
+  float shield_right = 12;
+  float shield_top = 13;
+  float shield_bottom = 14;
+  map<string, float> shield_faces = 15;
+  float hull = 16;
+  float speed_mps = 17;
+  float vertical_speed_mps = 18;
+  float radar_altitude_m = 19;
+  float g_force = 20;
+  int32 decoys = 21;
+  int32 noise = 22;
+  float boost_reserve = 23;
+  bool boost_active = 24;
+  float hydrogen = 25;
+  float power_engines = 26;
+  float power_weapons = 27;
+  float power_shields = 28;
+  bool main_power = 29;
+  bool landing_gear = 30;
+  bool lights = 31;
+  bool vtol = 32;
+  bool decoupled = 33;
+  bool g_safe = 34;
+  bool cruise_control = 35;
+  bool proximity_assist = 36;
+  bool esp = 37;
+  bool night_vision = 38;
+  bool doors_open = 39;
+  bool doors_locked = 40;
+}
+
+message WeaponGroup {
+  int32 index = 1;
+  string name = 2;
+  bool ready = 3;
+}
+
+message WeaponState {
+  int32 ready = 1;
+  int32 total = 2;
+  int32 active_group = 3;
+  bool gimbals_locked = 4;
+  repeated WeaponGroup groups = 5;
+}
+
+message GameEvent {
+  string name = 1;
+  string detail = 2;
+  int64 timestamp_unix_ms = 3;
+}
+
+message ForceFeedback {
+  float intensity = 1;
+}
+
+message TurretState {
+  bool occupied = 1;
+  float yaw_deg = 2;
+  float pitch_deg = 3;
+}
+
+message ListActionsRequest {}
+
+message TriggerableAction {
+  string action_name = 1;
+  string category = 2;
+  string label = 3;
+  bool available = 4;
+}
+
+message ListActionsResponse {
+  repeated TriggerableAction actions = 1;
+}
+
+message TriggerActionRequest {
+  string action_name = 1;
+  uint32 hold_ms = 2;
+}
+
+message TriggerActionResponse {
+  bool accepted = 1;
+  string message = 2;
+}

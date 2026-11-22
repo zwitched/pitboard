@@ -1,0 +1,129 @@
+
+ê
+telemetry.protosc.game.telemetry.v1"
+TelemetryStreamRequest"›
+TelemetryFrame
+frame_index (R
+frameIndex*
+timestamp_unix_ms (RtimestampUnixMsC
+	character (2%.sc.game.telemetry.v1.CharacterVitalsR	character<
+vehicle (2".sc.game.telemetry.v1.VehicleStateRvehicle;
+weapons (2!.sc.game.telemetry.v1.WeaponStateRweapons7
+events (2.sc.game.telemetry.v1.GameEventReventsJ
+force_feedback (2#.sc.game.telemetry.v1.ForceFeedbackRforceFeedback9
+turret (2!.sc.game.telemetry.v1.TurretStateRturret"0
+Vec3
+x (Rx
+y (Ry
+z (Rz"ﬁ
+CharacterVitals
+health (Rhealth
+oxygen (Roxygen
+hunger (Rhunger
+thirst (Rthirst,
+body_temperature_c (RbodyTemperatureC2
+outside_temperature_c (RoutsideTemperatureC$
+heart_rate_bpm (RheartRateBpm
+	gravity_g (RgravityG!
+pressure_kpa	 (RpressureKpa
+	radiation
+ (R	radiation"
+intoxication (Rintoxication3
+breathable_atmosphere (RbreathableAtmosphere
+balance (Rbalance
+posture (	Rposture
+	crew_role (	RcrewRole6
+position (2.sc.game.telemetry.v1.Vec3Rposition#
+location_name (	RlocationName"’
+
+VehicleState
+seated (Rseated
+	ship_name (	RshipName"
+manufacturer (	Rmanufacturer
+model (	Rmodel
+role (	Rrole
+flight_mode (	R
+flightMode
+flying (Rflying
+landed (Rlanded!
+shield_front	 (RshieldFront
+shield_rear
+ (R
+shieldRear
+shield_left (R
+shieldLeft!
+shield_right (RshieldRight
+
+shield_top (R	shieldTop#
+shield_bottom (RshieldBottomV
+shield_faces (23.sc.game.telemetry.v1.VehicleState.ShieldFacesEntryRshieldFaces
+hull (Rhull
+	speed_mps (RspeedMps,
+vertical_speed_mps (RverticalSpeedMps(
+radar_altitude_m (RradarAltitudeM
+g_force (RgForce
+decoys (Rdecoys
+noise (Rnoise#
+boost_reserve (RboostReserve!
+boost_active (RboostActive
+hydrogen (Rhydrogen#
+power_engines (RpowerEngines#
+power_weapons (RpowerWeapons#
+power_shields (RpowerShields
+
+main_power (R	mainPower!
+landing_gear (RlandingGear
+lights (Rlights
+vtol  (Rvtol
+	decoupled! (R	decoupled
+g_safe" (RgSafe%
+cruise_control# (RcruiseControl)
+proximity_assist$ (RproximityAssist
+esp% (Resp!
+night_vision& (RnightVision
+
+doors_open' (R	doorsOpen!
+doors_locked( (RdoorsLocked>
+ShieldFacesEntry
+key (	Rkey
+value (Rvalue:8"M
+WeaponGroup
+index (Rindex
+name (	Rname
+ready (Rready"æ
+WeaponState
+ready (Rready
+total (Rtotal!
+active_group (RactiveGroup%
+gimbals_locked (RgimbalsLocked9
+groups (2!.sc.game.telemetry.v1.WeaponGroupRgroups"c
+	GameEvent
+name (	Rname
+detail (	Rdetail*
+timestamp_unix_ms (RtimestampUnixMs"-
+ForceFeedback
+	intensity (R	intensity"_
+TurretState
+occupied (Roccupied
+yaw_deg (RyawDeg
+	pitch_deg (RpitchDeg"
+ListActionsRequest"Ñ
+TriggerableAction
+action_name (	R
+actionName
+category (	Rcategory
+label (	Rlabel
+	available (R	available"X
+ListActionsResponseA
+actions (2'.sc.game.telemetry.v1.TriggerableActionRactions"P
+TriggerActionRequest
+action_name (	R
+actionName
+hold_ms (RholdMs"M
+TriggerActionResponse
+accepted (Raccepted
+message (	Rmessage2‹
+GameTelemetryServiceg
+TelemetryStream,.sc.game.telemetry.v1.TelemetryStreamRequest$.sc.game.telemetry.v1.TelemetryFrame0m
+ListTriggerableActions(.sc.game.telemetry.v1.ListActionsRequest).sc.game.telemetry.v1.ListActionsResponsel
+TriggerGameAction*.sc.game.telemetry.v1.TriggerActionRequest+.sc.game.telemetry.v1.TriggerActionResponsebproto3
