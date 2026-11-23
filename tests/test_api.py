@@ -69,7 +69,7 @@ def test_lan_peer_cannot_bootstrap_or_arm(tmp_path: Path):
         assert armed.status_code == 403
         triggered = client.post("/api/actions/trigger", headers=headers, json={"name": "v_eject", "nonce": "nope"})
         assert triggered.status_code == 403
-        lights = client.post("/api/actions/trigger", headers=headers, json={"name": "v_lights_toggle"})
+        lights = client.post("/api/actions/trigger", headers=headers, json={"name": "v_lights"})
         assert lights.status_code == 200
         assert lights.json()["ok"] is True
 

@@ -18,35 +18,71 @@ from pitboard.schema_loader import LoadedSchema, load_synthetic
 MOCK_ACTIONS: tuple[dict, ...] = (
     {"name": "toggle_flashlight", "category": "character", "label": "Flashlight"},
     {"name": "mobiglas", "category": "character", "label": "mobiGlas"},
-    {"name": "star_map", "category": "character", "label": "Star map"},
+    {"name": "v_starmap", "category": "character", "label": "Star map"},
     {"name": "visor_wipe", "category": "character", "label": "Visor wipe"},
     {"name": "emote_wave", "category": "emote", "label": "Wave"},
     {"name": "emote_salute", "category": "emote", "label": "Salute"},
-    {"name": "emote_yes", "category": "emote", "label": "Yes"},
-    {"name": "emote_no", "category": "emote", "label": "No"},
-    {"name": "v_landing_gear_toggle", "category": "ship", "label": "Landing gear"},
-    {"name": "v_lights_toggle", "category": "ship", "label": "Lights"},
+    {"name": "emote_agree", "category": "emote", "label": "Agree"},
+    {"name": "emote_disagree", "category": "emote", "label": "Disagree"},
+    {"name": "v_flightready", "category": "ship", "label": "Flight ready"},
+    {"name": "v_toggle_landing_system", "category": "ship", "label": "Landing gear"},
     {"name": "v_vtol_toggle", "category": "ship", "label": "VTOL"},
-    {"name": "v_decoupled_toggle", "category": "ship", "label": "Decoupled"},
-    {"name": "v_gsafe_toggle", "category": "ship", "label": "G-Safe"},
-    {"name": "v_flight_ready", "category": "ship", "label": "Flight ready"},
-    {"name": "v_ping", "category": "ship", "label": "Ping"},
-    {"name": "v_hail", "category": "ship", "label": "Hail"},
-    {"name": "v_quantum", "category": "ship", "label": "Quantum travel"},
+    {"name": "v_ifcs_vector_decoupling_toggle", "category": "ship", "label": "Decoupled"},
+    {"name": "v_ifcs_toggle_gforce_safety", "category": "ship", "label": "G-Safe"},
+    {"name": "v_ifcs_proximity_assist_toggle", "category": "ship", "label": "Prox assist"},
+    {"name": "v_ifcs_toggle_esp", "category": "ship", "label": "ESP"},
+    {"name": "v_master_mode_set_nav", "category": "ship", "label": "NAV"},
+    {"name": "v_master_mode_set_scm", "category": "ship", "label": "SCM"},
+    {"name": "v_master_mode_cycle", "category": "ship", "label": "NAV/SCM"},
+    {"name": "v_toggle_qdrive_engagement", "category": "ship", "label": "Quantum"},
+    {"name": "v_atc_request", "category": "ship", "label": "ATC"},
+    {"name": "v_toggle_docking_request", "category": "ship", "label": "Docking"},
+    {"name": "v_power_toggle", "category": "ship", "label": "Main power"},
+    {"name": "v_power_toggle_thrusters", "category": "ship", "label": "Thrusters"},
+    {"name": "v_power_toggle_shields", "category": "ship", "label": "Shields"},
+    {"name": "v_power_toggle_weapons", "category": "ship", "label": "Weapons"},
+    {"name": "v_lights", "category": "ship", "label": "Lights"},
+    {"name": "v_light_amplification_toggle", "category": "ship", "label": "Night vision"},
+    {"name": "v_flight_advanced_hud_toggle", "category": "ship", "label": "Adv HUD"},
+    {"name": "v_invoke_ping", "category": "ship", "label": "Ping", "holdable": True},
+    {"name": "v_target_hail", "category": "ship", "label": "Hail"},
+    {"name": "v_toggle_all_doors", "category": "ship", "label": "Doors"},
+    {"name": "v_toggle_all_doorlocks", "category": "ship", "label": "Door locks"},
+    {"name": "v_set_flight_mode", "category": "ship", "label": "Flight mode"},
+    {"name": "v_set_guns_mode", "category": "ship", "label": "Guns mode"},
+    {"name": "v_set_scan_mode", "category": "ship", "label": "Scan mode"},
+    {"name": "v_set_mining_mode", "category": "ship", "label": "Mining mode"},
+    {"name": "v_set_salvage_mode", "category": "ship", "label": "Salvage mode"},
+    {"name": "v_set_quantum_mode", "category": "ship", "label": "Quantum mode"},
+    {"name": "v_set_refuel_mode", "category": "ship", "label": "Refuel mode"},
     {"name": "v_self_destruct", "category": "ship", "label": "Self destruct"},
     {"name": "v_eject", "category": "ship", "label": "Eject"},
+    {"name": "v_emergency_exit", "category": "ship", "label": "Emergency exit"},
     {"name": "v_power_set_off", "category": "ship", "label": "Main power off"},
-    {"name": "v_doors_open", "category": "ship", "label": "Open doors"},
-    {"name": "v_doors_unlock", "category": "ship", "label": "Unlock doors"},
-    {"name": "v_cargo_open", "category": "ship", "label": "Open cargo"},
+    {"name": "v_open_all_doors", "category": "ship", "label": "Open doors"},
+    {"name": "v_unlock_all_doors", "category": "ship", "label": "Unlock doors"},
 )
 
 _TOGGLE_FIELDS = {
+    "v_toggle_landing_system": "landing_gear",
     "v_landing_gear_toggle": "landing_gear",
+    "v_lights": "lights",
     "v_lights_toggle": "lights",
     "v_vtol_toggle": "vtol",
+    "v_ifcs_vector_decoupling_toggle": "decoupled",
     "v_decoupled_toggle": "decoupled",
+    "v_ifcs_toggle_gforce_safety": "g_safe",
     "v_gsafe_toggle": "g_safe",
+    "v_ifcs_proximity_assist_toggle": "proximity_assist",
+    "v_ifcs_toggle_esp": "esp",
+    "v_light_amplification_toggle": "night_vision",
+    "v_toggle_all_doors": "doors_open",
+    "v_toggle_all_doorlocks": "doors_locked",
+    "v_power_toggle": "main_power",
+    "v_power_toggle_thrusters": "thrusters_power",
+    "v_power_toggle_shields": "shields_power",
+    "v_power_toggle_weapons": "weapons_power",
+    "v_flight_advanced_hud_toggle": "advanced_hud",
 }
 
 
@@ -61,9 +97,17 @@ class World:
     vtol: bool = False
     decoupled: bool = False
     g_safe: bool = True
+    proximity_assist: bool = True
+    esp: bool = False
+    night_vision: bool = False
+    advanced_hud: bool = False
     doors_open: bool = False
     doors_locked: bool = True
     main_power: bool = True
+    thrusters_power: bool = True
+    shields_power: bool = True
+    weapons_power: bool = True
+    flight_mode: str = "SCM"
     destroyed: bool = False
     ejected: bool = False
     pending: list[dict] = field(default_factory=list)
@@ -84,14 +128,38 @@ class World:
             self.main_power = False
             self.note("Main power", "off")
             return "main power off"
-        if action_name in {"v_doors_open", "v_cargo_open"}:
+        if action_name == "v_power_set_on":
+            self.main_power = True
+            self.note("Main power", "on")
+            return "main power on"
+        if action_name == "v_master_mode_set_nav":
+            self.flight_mode = "NAV"
+            self.note("Master mode", "NAV")
+            return "NAV"
+        if action_name == "v_master_mode_set_scm":
+            self.flight_mode = "SCM"
+            self.note("Master mode", "SCM")
+            return "SCM"
+        if action_name == "v_master_mode_cycle":
+            self.flight_mode = "NAV" if self.flight_mode != "NAV" else "SCM"
+            self.note("Master mode", self.flight_mode)
+            return self.flight_mode
+        if action_name in {"v_open_all_doors", "v_doors_open", "v_cargo_open"}:
             self.doors_open = True
             self.note(action_name, "open")
             return "open"
-        if action_name == "v_doors_unlock":
+        if action_name in {"v_close_all_doors"}:
+            self.doors_open = False
+            self.note(action_name, "closed")
+            return "closed"
+        if action_name in {"v_unlock_all_doors", "v_doors_unlock"}:
             self.doors_locked = False
             self.note("Door locks", "unlocked")
             return "unlocked"
+        if action_name in {"v_lock_all_doors"}:
+            self.doors_locked = True
+            self.note("Door locks", "locked")
+            return "locked"
         if action_name == "v_self_destruct":
             self.destroyed = True
             self.main_power = False
@@ -148,7 +216,7 @@ class World:
             ship.manufacturer = "Drake"
             ship.model = "Cutter"
             ship.role = "Light freight"
-            ship.flight_mode = "SCM"
+            ship.flight_mode = self.flight_mode
             ship.landed = self.landing_gear and not self.destroyed
             ship.flying = not ship.landed and not self.destroyed
             front = 0.0 if self.destroyed else _clamp(0.78 + 0.18 * math.sin(elapsed / 1.6))
@@ -179,9 +247,9 @@ class World:
             ship.boost_reserve = 0.0 if not self.main_power else _clamp(0.62 + 0.2 * math.sin(elapsed / 3.5))
             ship.boost_active = ship.boost_reserve > 0.75 and self.main_power
             ship.hydrogen = 0.0 if not self.main_power else 0.71
-            ship.power_engines = 0.0 if not self.main_power else 0.45
-            ship.power_weapons = 0.0 if not self.main_power else 0.25
-            ship.power_shields = 0.0 if not self.main_power else 0.3
+            ship.power_engines = 0.0 if not self.main_power or not self.thrusters_power else 0.45
+            ship.power_weapons = 0.0 if not self.main_power or not self.weapons_power else 0.25
+            ship.power_shields = 0.0 if not self.main_power or not self.shields_power else 0.3
             ship.main_power = self.main_power and not self.destroyed
             ship.landing_gear = self.landing_gear
             ship.lights = self.lights and self.main_power
@@ -189,9 +257,9 @@ class World:
             ship.decoupled = self.decoupled
             ship.g_safe = self.g_safe
             ship.cruise_control = False
-            ship.proximity_assist = True
-            ship.esp = False
-            ship.night_vision = False
+            ship.proximity_assist = self.proximity_assist
+            ship.esp = self.esp
+            ship.night_vision = self.night_vision
             ship.doors_open = self.doors_open
             ship.doors_locked = self.doors_locked
             weapons = frame.weapons

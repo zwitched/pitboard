@@ -24,10 +24,85 @@ const FACE_LABELS = {
   all: "Shields",
 };
 
+
+const COCKPIT_PANELS = [
+  {
+    id: "flight",
+    title: "Flight",
+    tone: "ice",
+    buttons: [
+      { name: "v_flightready", label: "Flight ready", color: "amber" },
+      { name: "v_toggle_landing_system", label: "Landing gear", color: "ice", toggle: "landing_gear" },
+      { name: "v_vtol_toggle", label: "VTOL", color: "ice", toggle: "vtol" },
+      { name: "v_ifcs_vector_decoupling_toggle", label: "Decoupled", color: "amber", toggle: "decoupled" },
+      { name: "v_ifcs_toggle_gforce_safety", label: "G-Safe", color: "ok", toggle: "g_safe" },
+      { name: "v_ifcs_proximity_assist_toggle", label: "Prox assist", color: "ok", toggle: "proximity_assist" },
+      { name: "v_ifcs_toggle_esp", label: "ESP", color: "ok", toggle: "esp" },
+      { name: "v_master_mode_set_nav", label: "NAV", color: "ice", mode: "NAV" },
+      { name: "v_master_mode_set_scm", label: "SCM", color: "amber", mode: "SCM" },
+      { name: "v_master_mode_cycle", label: "NAV/SCM", color: "ice", fallbackFor: ["v_master_mode_set_nav", "v_master_mode_set_scm"] },
+      { name: "v_toggle_qdrive_engagement", label: "Quantum", color: "amber" },
+      { name: "v_atc_request", label: "ATC", color: "ice" },
+      { name: "v_toggle_docking_request", label: "Docking", color: "ice" },
+    ],
+  },
+  {
+    id: "power",
+    title: "Power",
+    tone: "amber",
+    buttons: [
+      { name: "v_power_toggle", label: "Main power", color: "amber", toggle: "main_power" },
+      { name: "v_power_toggle_thrusters", label: "Thrusters", color: "ice", power: "engines" },
+      { name: "v_power_toggle_shields", label: "Shields", color: "ice", power: "shields" },
+      { name: "v_power_toggle_weapons", label: "Weapons", color: "amber", power: "weapons" },
+    ],
+  },
+  {
+    id: "systems",
+    title: "Systems",
+    tone: "ice",
+    buttons: [
+      { name: "v_lights", label: "Lights", color: "amber", toggle: "lights" },
+      { name: "v_light_amplification_toggle", label: "Night vision", color: "ok", toggle: "night_vision" },
+      { name: "v_flight_advanced_hud_toggle", label: "Adv HUD", color: "ice" },
+      { name: "v_invoke_ping", label: "Ping", color: "ice", holdable: true },
+      { name: "v_target_hail", label: "Hail", color: "ice" },
+      { name: "v_toggle_all_doors", label: "Doors", color: "amber", toggle: "doors_open" },
+      { name: "v_toggle_all_doorlocks", label: "Door locks", color: "ok", toggle: "doors_locked" },
+    ],
+  },
+  {
+    id: "modes",
+    title: "Modes",
+    tone: "ice",
+    buttons: [
+      { name: "v_set_flight_mode", label: "Flight", color: "ice" },
+      { name: "v_set_guns_mode", label: "Guns", color: "amber" },
+      { name: "v_set_scan_mode", label: "Scan", color: "ice" },
+      { name: "v_set_mining_mode", label: "Mining", color: "amber" },
+      { name: "v_set_salvage_mode", label: "Salvage", color: "ice" },
+      { name: "v_set_quantum_mode", label: "Quantum", color: "amber" },
+      { name: "v_set_refuel_mode", label: "Refuel", color: "ok" },
+    ],
+  },
+  {
+    id: "danger",
+    title: "Danger",
+    tone: "bad",
+    buttons: [
+      { name: "v_self_destruct", label: "Self destruct", color: "bad", guarded: true },
+      { name: "v_eject", label: "Eject", color: "bad", guarded: true },
+      { name: "v_emergency_exit", label: "Emergency exit", color: "bad", guarded: true },
+      { name: "v_power_set_off", label: "Power off", color: "bad", guarded: true },
+    ],
+  },
+];
+
 let token = "";
 let localControl = false;
 let snapshot = null;
 let actionSig = "";
+let cockpitSig = "";
 let built = false;
 let toastTimer = 0;
 let settingsLock = false;
@@ -143,6 +218,7 @@ function applySnapshot(next) {
   }
   paintCharacter(next);
   paintShip(next);
+  paintCockpit(next);
   paintActions(next);
   paintSettings(next);
 }
@@ -443,6 +519,207 @@ function paintUnmapped(items) {
   }
 }
 
+
+function actionMap(next) {
+  const map = new Map();
+  for (const action of next.actions || []) map.set(action.name, action);
+  return map;
+}
+
+function cockpitVisible(spec, listed) {
+  if (spec.fallbackFor && spec.fallbackFor.some((name) => listed.has(name))) return false;
+  return listed.has(spec.name);
+}
+
+function bindHold(button, startMs, onFire, { touchNone = false } = {}) {
+  let timer = 0;
+  let frame = 0;
+  let started = 0;
+  const bar = button.querySelector(".ck-hold, .hold");
+  const cancel = () => {
+    clearTimeout(timer);
+    cancelAnimationFrame(frame);
+    timer = 0;
+    button.classList.remove("is-down");
+    if (bar) bar.style.transform = "scaleX(0)";
+  };
+  const tick = () => {
+    const ratio = Math.min(1, (performance.now() - started) / startMs);
+    if (bar) bar.style.transform = `scaleX(${ratio})`;
+    if (ratio < 1) frame = requestAnimationFrame(tick);
+  };
+  const start = (event) => {
+    if (button.disabled) return;
+    event.preventDefault();
+    started = performance.now();
+    button.classList.add("is-down");
+    tick();
+    timer = setTimeout(() => {
+      cancel();
+      onFire(startMs);
+    }, startMs);
+  };
+  if (touchNone) button.style.touchAction = "none";
+  button.addEventListener("pointerdown", start);
+  button.addEventListener("pointerup", cancel);
+  button.addEventListener("pointerleave", cancel);
+  button.addEventListener("pointercancel", cancel);
+  button.addEventListener("contextmenu", (event) => event.preventDefault());
+  button.addEventListener("keydown", (event) => {
+    if ((event.key === " " || event.key === "Enter") && !timer) start(event);
+  });
+  button.addEventListener("keyup", cancel);
+}
+
+function bindHoldable(button, action) {
+  let started = 0;
+  const bar = button.querySelector(".ck-hold");
+  const cancel = (event) => {
+    if (!started) return;
+    button.classList.remove("is-down");
+    const held = performance.now() - started;
+    started = 0;
+    if (bar) bar.style.transform = "scaleX(0)";
+    if (event && event.type === "pointerleave") return;
+    if (held < 40) return;
+    sendAction(action.name, false, Math.min(held, 10000));
+  };
+  const start = (event) => {
+    if (button.disabled) return;
+    event.preventDefault();
+    started = performance.now();
+    button.classList.add("is-down");
+    const tick = () => {
+      if (!started) return;
+      if (bar) bar.style.transform = `scaleX(${Math.min(1, (performance.now() - started) / 1500)})`;
+      requestAnimationFrame(tick);
+    };
+    tick();
+  };
+  button.style.touchAction = "none";
+  button.addEventListener("pointerdown", start);
+  button.addEventListener("pointerup", cancel);
+  button.addEventListener("pointerleave", (event) => {
+    if (!started) return;
+    started = 0;
+    button.classList.remove("is-down");
+    if (bar) bar.style.transform = "scaleX(0)";
+  });
+  button.addEventListener("pointercancel", (event) => {
+    started = 0;
+    button.classList.remove("is-down");
+    if (bar) bar.style.transform = "scaleX(0)";
+  });
+  button.addEventListener("contextmenu", (event) => event.preventDefault());
+}
+
+function cockpitButton(spec, action, armed) {
+  const dangerous = Boolean(action.dangerous);
+  const guarded = Boolean(spec.guarded) || dangerous;
+  const kids = [];
+  if (guarded) kids.push(el("span", { class: "ck-stripes" }, []));
+  const capKids = [
+    el("span", { class: "ck-led", "aria-hidden": "true" }, []),
+    el("span", { class: "ck-name" }, [spec.label]),
+  ];
+  if (spec.holdable || guarded) capKids.push(el("span", { class: "ck-hold" }, []));
+  if (guarded) capKids.push(el("span", { class: "ck-hint" }, [dangerous && !armed ? "Covered" : "Hold"]));
+  else if (spec.holdable) capKids.push(el("span", { class: "ck-hint" }, ["Hold"]));
+  kids.push(el("span", { class: "ck-cap" }, capKids));
+  const button = el("button", {
+    class: guarded ? "ck-btn danger" : "ck-btn",
+    type: "button",
+    "data-name": spec.name,
+    "data-color": spec.color || "ice",
+  }, kids);
+  if (spec.toggle) button.dataset.toggle = spec.toggle;
+  if (spec.mode) button.dataset.mode = spec.mode;
+  if (spec.power) button.dataset.power = spec.power;
+  if (action.available === false) button.disabled = true;
+  if (dangerous && !armed) button.disabled = true;
+  if (dangerous) {
+    bindHold(button, HOLD_MS, () => sendAction(action.name, true), { touchNone: true });
+  } else if (spec.holdable) {
+    bindHoldable(button, action);
+  } else if (guarded) {
+    bindHold(button, HOLD_MS, () => sendAction(action.name, false), { touchNone: true });
+  } else {
+    button.addEventListener("click", () => sendAction(action.name, false));
+  }
+  return button;
+}
+
+function paintCockpit(next) {
+  const listed = actionMap(next);
+  const armed = Boolean(next.settings && next.settings.allow_dangerous_actions && localControl);
+  const signature = JSON.stringify([
+    localControl,
+    armed,
+    next.actions_supported,
+    next.actions_error,
+    [...listed.keys()],
+    [...listed.values()].map((action) => [action.name, action.dangerous, action.available]),
+  ]);
+  if (signature !== cockpitSig) {
+    cockpitSig = signature;
+    const root = $("panel-cockpit");
+    root.replaceChildren();
+    if (!next.actions_supported) {
+      root.append(el("p", { class: "note cockpit-note" }, [next.actions_error || "This game build is not offering commands."]));
+    } else {
+      const stack = el("div", { class: "cockpit-stack" });
+      let shown = 0;
+      for (const panel of COCKPIT_PANELS) {
+        const buttons = panel.buttons.filter((spec) => cockpitVisible(spec, listed));
+        if (!buttons.length) continue;
+        const bay = el("section", { class: "cockpit-bay", "data-tone": panel.tone, "data-bay": panel.id }, [
+          el("h3", { class: "cockpit-bay-label" }, [panel.title]),
+        ]);
+        if (panel.id === "danger") {
+          const why = !buttons.some((spec) => (listed.get(spec.name) || {}).dangerous)
+            ? null
+            : !armed
+              ? (localControl
+                ? "Arm in Settings, then hold. Phones cannot send these."
+                : "Hazardous commands can only be sent from the PC running Pitboard.")
+              : "Hold a striped button to confirm. These cannot be sent from a phone.";
+          if (why) bay.append(el("p", { class: "note cockpit-danger-note" }, [why]));
+        }
+        const grid = el("div", { class: "cockpit-grid" });
+        for (const spec of buttons) {
+          grid.append(cockpitButton(spec, listed.get(spec.name), armed));
+          shown += 1;
+        }
+        bay.append(grid);
+        stack.append(bay);
+      }
+      if (!shown) {
+        root.append(el("p", { class: "note cockpit-note" }, ["None of the cockpit commands are in the game’s current list."]));
+      } else {
+        root.append(stack);
+      }
+    }
+  }
+  const toggles = (next.ship && next.ship.toggles) || {};
+  const power = (next.ship && next.ship.power) || {};
+  const mode = ((next.ship && next.ship.mode) || "").toUpperCase();
+  for (const button of document.querySelectorAll("#panel-cockpit .ck-btn")) {
+    let on = null;
+    if (button.dataset.toggle) {
+      const value = toggles[button.dataset.toggle];
+      if (value != null) on = Boolean(value);
+    } else if (button.dataset.power) {
+      const value = power[button.dataset.power];
+      if (typeof value === "number") on = value > 0.01;
+      else if (value != null) on = Boolean(value);
+    } else if (button.dataset.mode) {
+      on = mode.includes(button.dataset.mode.toUpperCase());
+    }
+    if (on == null) delete button.dataset.on;
+    else button.dataset.on = String(on);
+  }
+}
+
 function paintActions(next) {
   const signature = JSON.stringify([
     localControl,
@@ -548,14 +825,16 @@ function filterActions(query) {
   }
 }
 
-async function sendAction(name, dangerous) {
+async function sendAction(name, dangerous, holdMs = 0) {
   try {
     let nonce = null;
     if (dangerous) {
       const armed = await api("/api/actions/arm", { name });
       nonce = armed.nonce;
     }
-    const result = await api("/api/actions/trigger", { name, nonce });
+    const body = { name, nonce };
+    if (holdMs) body.hold_ms = Math.round(holdMs);
+    const result = await api("/api/actions/trigger", body);
     toast(result.message || (result.ok ? "Sent" : "Rejected"));
     if (result.snapshot) applySnapshot(result.snapshot);
   } catch (err) {
@@ -566,11 +845,11 @@ async function sendAction(name, dangerous) {
 function bindChrome() {
   for (const tab of document.querySelectorAll(".tab")) {
     tab.addEventListener("click", () => {
-      for (const other of document.querySelectorAll(".tab")) other.classList.toggle("on", other === tab);
       const name = tab.dataset.tab;
-      $("panel-character").hidden = name !== "character";
-      $("panel-ship").hidden = name !== "ship";
-      $("panel-actions").hidden = name !== "actions";
+      for (const other of document.querySelectorAll(".tab")) other.classList.toggle("on", other === tab);
+      for (const panel of document.querySelectorAll("main > .panel")) {
+        panel.hidden = panel.id !== `panel-${name}`;
+      }
     });
   }
   $("open-settings").addEventListener("click", () => $("settings").showModal());

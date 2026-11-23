@@ -40,9 +40,9 @@ async def test_mock_stream_updates_ship_and_records(tmp_path: Path):
         assert snap["ship"]["manufacturer"] == "Drake"
         assert snap["character"]["posture"] == "seated"
         assert snap["ship"]["shields"]["faces"]["front"]["ratio"] is not None
-        assert any(item["name"] == "v_lights_toggle" and not item["dangerous"] for item in snap["actions"])
+        assert any(item["name"] == "v_lights" and not item["dangerous"] for item in snap["actions"])
         before = snap["ship"]["toggles"]["lights"]
-        result = await hub.trigger("v_lights_toggle", loopback=True)
+        result = await hub.trigger("v_lights", loopback=True)
         assert result["ok"] is True
         flipped = before
         for _ in range(40):
@@ -71,7 +71,7 @@ async def test_mock_stream_updates_ship_and_records(tmp_path: Path):
     text = log_files[0].read_text(encoding="utf-8")
     assert '"kind":"frame"' in text or '"kind": "frame"' in text
     assert "access_token" not in text
-    assert "v_lights_toggle" in text
+    assert "v_lights" in text
 
 
 @pytest.mark.asyncio
