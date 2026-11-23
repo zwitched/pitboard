@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import io
+
 import asyncio
 import logging
 import re
@@ -273,7 +275,9 @@ def create_app(
         if not address:
             raise HTTPException(404, "No LAN address detected.")
         url = f"http://{address}:{settings.port}/?token={settings.access_token}"
-        svg = segno.make(url, error="m").svg_inline(scale=4, dark="#e7eef6", light="#10151c")
+        buf = io.BytesIO()
+        segno.make(url, error="m").save(buf, kind="svg", scale=4, dark="#e7eef6", light="#10151c")
+        svg = buf.getvalue()
         return Response(content=svg, media_type="image/svg+xml")
 
     @app.post("/api/settings")
