@@ -273,3 +273,54 @@ dialog h2 { margin: 0; letter-spacing: 0.12em; text-transform: uppercase; }
 @media (prefers-reduced-motion: reduce) {
   .toast { transition: none; }
 }
+
+/* Compact phone layout: smaller tiles, more on screen at once. */
+@media (max-width: 720px) {
+  body { padding: 8px 8px 76px; background-size: auto, 20px 20px, 20px 20px; }
+  .top { grid-template-columns: 1fr auto; gap: 6px 10px; padding-bottom: 8px; }
+  .brand { display: flex; gap: 10px; align-items: baseline; }
+  .mark { letter-spacing: 0.18em; font-size: 0.9rem; }
+  .pilot, .sub, .fps { margin: 0; font-size: 0.78rem; }
+  .link-block { grid-column: 1 / -1; grid-row: 2; display: flex; gap: 10px; align-items: baseline; }
+  .lamp-row { font-size: 0.78rem; letter-spacing: 0.1em; }
+  .top-actions { gap: 8px; }
+  .top-actions .ghost { min-height: 34px; padding: 4px 10px; font-size: 0.8rem; }
+  .banner { margin-top: 8px; padding: 6px 8px; font-size: 0.78rem; }
+  .foot { display: none; }
+  .panel { padding: 8px; box-shadow: none; }
+  .tab { min-height: 42px; font-size: 0.78rem; letter-spacing: 0.1em; }
+
+  .hero, .stat-grid, .env-grid, .ship-stats, .split { gap: 6px; }
+  .hero { grid-template-columns: repeat(3, 1fr); }
+  .stat-grid, .env-grid { grid-template-columns: repeat(3, 1fr); margin-top: 6px; }
+  .ship-stats { grid-template-columns: repeat(3, 1fr); }
+  .split { grid-template-columns: 1fr; margin-top: 6px; }
+
+  .card, .metric, .face, .lamp-toggle { padding: 6px 7px; }
+  .card h3, .metric .name, .face .name, .group-title { font-size: 0.6rem; letter-spacing: 0.08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .metric .val { font-size: 1.05rem; margin: 3px 0 3px; }
+  .metric.featured .val { font-size: 1.5rem; }
+  .ship-stats .big { font-size: 1.9rem; }
+  .core .val { font-size: 1.2rem; }
+  .metric .unit, .meta { font-size: 0.68rem; }
+  .bar { height: 5px; }
+  .identity { margin-bottom: 6px; }
+  .identity h2 { font-size: 1.2rem; }
+  .identity p { font-size: 0.78rem; }
+
+  .rose { grid-template-columns: repeat(3, 1fr); grid-template-areas: ". top ." "left core right" "front core rear" ". bottom ."; gap: 4px; margin-top: 6px; }
+  .core { min-height: 60px; }
+  .power-row { grid-template-columns: 56px 1fr 40px; gap: 6px; margin-top: 4px; font-size: 0.8rem; }
+
+  .toggles, .actions { gap: 5px; margin-top: 5px; }
+  .act, .lamp-toggle { min-height: 38px; padding: 5px 9px; font-size: 0.8rem; }
+  .group-title { margin: 8px 0 4px; }
+  .search { min-height: 38px; margin: 4px 0 6px; }
+  .events li { padding: 5px 0; font-size: 0.8rem; }
+  .guide { padding: 10px; }
+  .steps { grid-template-columns: 1fr; }
+  .guide pre { white-space: pre-wrap; word-break: break-all; font-size: 0.75rem; }
+}
+@media (max-width: 380px) {
+  .hero, .stat-grid, .env-grid, .ship-stats { grid-template-columns: repeat(2, 1fr); }
+}
