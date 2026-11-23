@@ -26,7 +26,7 @@ from pitboard.paths import extracted_desc_candidates
 log = logging.getLogger("pitboard")
 WS_AUTH_TIMEOUT = 3.0
 CSP = (
-    "default-src 'self'; style-src 'self'; img-src 'self' data:; "
+    "default-src 'self'; style-src 'self'; img-src 'self' data: blob:; "
     "script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; "
     "form-action 'self'"
 )
