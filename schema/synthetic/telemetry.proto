@@ -94,6 +94,10 @@ message VehicleState {
   bool night_vision = 38;
   bool doors_open = 39;
   bool doors_locked = 40;
+  float heading_deg = 41;
+  float altitude_msl_m = 42;
+  float quantum_fuel = 43;
+  float g_force_peak = 44;
 }
 
 message WeaponGroup {

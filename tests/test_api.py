@@ -120,3 +120,16 @@ def test_settings_file_permissions_and_token_persistence(tmp_path: Path):
     assert saved["allow_dangerous_actions"] is False
     assert "token" not in json.dumps({key: saved[key] for key in saved if key != "access_token"})
     assert len(saved["access_token"]) >= 24
+
+
+def test_mfd_assets_are_versioned_and_served(tmp_path: Path):
+    app = _app(tmp_path)
+    with TestClient(app) as client:
+        page = client.get("/")
+        assert 'data-tab="mfd"' in page.text
+        assert 'id="panel-mfd"' in page.text
+        for asset in ("styles.css", "app.js", "mfd.css", "mfd.js"):
+            assert f"/static/{asset}?v=4" in page.text
+            served = client.get(f"/static/{asset}?v=4")
+            assert served.status_code == 200
+        assert "v=3" not in page.text

@@ -1,5 +1,5 @@
 
-
+œ
 telemetry.protosc.game.telemetry.v1"
 TelemetryStreamRequest"Ý
 TelemetryFrame
@@ -34,8 +34,7 @@ frameIndex*
 posture (	Rposture
 	crew_role (	RcrewRole6
 position (2.sc.game.telemetry.v1.Vec3Rposition#
-location_name (	RlocationName"Õ
-
+location_name (	RlocationName"á
 VehicleState
 seated (Rseated
 	ship_name (	RshipName"
@@ -83,7 +82,13 @@ main_power (R	mainPower!
 night_vision& (RnightVision
 
 doors_open' (R	doorsOpen!
-doors_locked( (RdoorsLocked>
+doors_locked( (RdoorsLocked
+heading_deg) (R
+headingDeg$
+altitude_msl_m* (RaltitudeMslM!
+quantum_fuel+ (RquantumFuel 
+g_force_peak, (R
+gForcePeak>
 ShieldFacesEntry
 key (	Rkey
 value (Rvalue:8"M

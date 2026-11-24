@@ -160,3 +160,39 @@ def test_field_map_overrides_the_guess():
     view = normalize(raw, field_map={"character.health": "custom.vitals.integrity_ratio"})
     assert view["character"]["metrics"]["health"]["raw"] == 0.9
     assert view["character"]["metrics"]["health"]["path"] == "custom.vitals.integrity_ratio"
+
+
+def test_mfd_flight_fields_do_not_steal_each_other():
+    raw = {
+        "vehicle": {
+            "ship_name": "Cutlass Black",
+            "radar_altitude_m": 812.0,
+            "altitude_msl_m": 81914.0,
+            "heading_deg": 586.0,
+            "hydrogen": 0.6,
+            "quantum_fuel": 0.0,
+            "g_force": 0.8,
+            "g_force_peak": 9.9,
+        },
+        "turret": {"yaw_deg": 12.0},
+    }
+    metrics = normalize(raw)["ship"]["metrics"]
+    assert metrics["radar_altitude"]["path"] == "vehicle.radar_altitude_m"
+    assert metrics["altitude"]["path"] == "vehicle.altitude_msl_m"
+    assert metrics["heading"]["raw"] == 226
+    assert metrics["heading"]["unit"] == "°"
+    assert metrics["hydrogen"]["path"] == "vehicle.hydrogen"
+    assert metrics["quantum_fuel"]["display"] == "0%"
+    assert metrics["g_force"]["path"] == "vehicle.g_force"
+    assert metrics["g_force_peak"]["raw"] == 9.9
+
+
+def test_missing_mfd_fields_stay_blank():
+    raw = {"vehicle": {"speed_mps": 100.0, "altitude": 500.0, "fuel": 0.5}}
+    metrics = normalize(raw)["ship"]["metrics"]
+    assert metrics["radar_altitude"]["raw"] == 500.0
+    assert metrics["altitude"]["raw"] is None
+    assert metrics["heading"]["raw"] is None
+    assert metrics["hydrogen"]["ratio"] == 0.5
+    assert metrics["quantum_fuel"]["raw"] is None
+    assert metrics["g_force_peak"]["raw"] is None

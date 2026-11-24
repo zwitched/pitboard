@@ -220,6 +220,7 @@ function applySnapshot(next) {
   paintShip(next);
   paintCockpit(next);
   paintActions(next);
+  if (typeof paintMfd === "function") paintMfd(next);
   paintSettings(next);
 }
 
@@ -835,23 +836,32 @@ async function sendAction(name, dangerous, holdMs = 0) {
     const body = { name, nonce };
     if (holdMs) body.hold_ms = Math.round(holdMs);
     const result = await api("/api/actions/trigger", body);
+    document.dispatchEvent(new CustomEvent("pitboard:action", { detail: { ok: Boolean(result.ok), name, message: result.message || "" } }));
     toast(result.message || (result.ok ? "Sent" : "Rejected"));
     if (result.snapshot) applySnapshot(result.snapshot);
   } catch (err) {
+    document.dispatchEvent(new CustomEvent("pitboard:action", { detail: { ok: false, name, message: err.message } }));
     toast(err.message);
   }
 }
 
+function showTab(name) {
+  const tab = document.querySelector(`.tab[data-tab="${name}"]`);
+  if (!tab) return;
+  for (const other of document.querySelectorAll(".tab")) other.classList.toggle("on", other === tab);
+  for (const panel of document.querySelectorAll("main > .panel")) {
+    panel.hidden = panel.id !== `panel-${name}`;
+  }
+  document.body.classList.toggle("mfd-mode", name === "mfd");
+  localStorage.setItem("pitboard-tab", name);
+}
+
 function bindChrome() {
   for (const tab of document.querySelectorAll(".tab")) {
-    tab.addEventListener("click", () => {
-      const name = tab.dataset.tab;
-      for (const other of document.querySelectorAll(".tab")) other.classList.toggle("on", other === tab);
-      for (const panel of document.querySelectorAll("main > .panel")) {
-        panel.hidden = panel.id !== `panel-${name}`;
-      }
-    });
+    tab.addEventListener("click", () => showTab(tab.dataset.tab));
   }
+  const saved = localStorage.getItem("pitboard-tab");
+  if (saved) showTab(saved);
   $("open-settings").addEventListener("click", () => $("settings").showModal());
   $("set-danger").addEventListener("change", () => saveSetting({ allow_dangerous_actions: $("set-danger").checked }));
   $("set-lan").addEventListener("change", () => saveSetting({ lan_enabled: $("set-lan").checked }));

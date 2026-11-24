@@ -36,6 +36,7 @@ MOCK_ACTIONS: tuple[dict, ...] = (
     {"name": "v_master_mode_cycle", "category": "ship", "label": "NAV/SCM"},
     {"name": "v_toggle_qdrive_engagement", "category": "ship", "label": "Quantum"},
     {"name": "v_atc_request", "category": "ship", "label": "ATC"},
+    {"name": "v_ifcs_reset_gmeter_max", "category": "ship", "label": "Reset G peak"},
     {"name": "v_toggle_docking_request", "category": "ship", "label": "Docking"},
     {"name": "v_power_toggle", "category": "ship", "label": "Main power"},
     {"name": "v_power_toggle_thrusters", "category": "ship", "label": "Thrusters"},
@@ -113,6 +114,7 @@ class World:
     pending: list[dict] = field(default_factory=list)
     started: float = field(default_factory=time.monotonic)
     ejected_at: float | None = None
+    g_peak: float = 0.0
 
     def note(self, name: str, detail: str = "") -> None:
         self.pending.append({"name": name, "detail": detail})
@@ -160,6 +162,10 @@ class World:
             self.doors_locked = True
             self.note("Door locks", "locked")
             return "locked"
+        if action_name == "v_ifcs_reset_gmeter_max":
+            self.g_peak = 0.0
+            self.note("G-meter", "peak reset")
+            return "peak reset"
         if action_name == "v_self_destruct":
             self.destroyed = True
             self.main_power = False
@@ -242,11 +248,16 @@ class World:
             ship.vertical_speed_mps = 0.0 if self.destroyed else 18 * math.cos(elapsed / 2.5)
             ship.radar_altitude_m = 40.0 if self.landing_gear else 2400 + 500 * math.sin(elapsed / 5)
             ship.g_force = 0.2 if self.destroyed else 1.1 + 2.4 * abs(math.sin(elapsed / 2.2))
+            self.g_peak = max(self.g_peak, ship.g_force)
+            ship.g_force_peak = self.g_peak
             ship.decoys = 22
             ship.noise = 8
             ship.boost_reserve = 0.0 if not self.main_power else _clamp(0.62 + 0.2 * math.sin(elapsed / 3.5))
             ship.boost_active = ship.boost_reserve > 0.75 and self.main_power
             ship.hydrogen = 0.0 if not self.main_power else 0.71
+            ship.heading_deg = (226 + 6 * math.sin(elapsed / 7)) % 360
+            ship.altitude_msl_m = ship.radar_altitude_m + 79500.0
+            ship.quantum_fuel = 0.0
             ship.power_engines = 0.0 if not self.main_power or not self.thrusters_power else 0.45
             ship.power_weapons = 0.0 if not self.main_power or not self.weapons_power else 0.25
             ship.power_shields = 0.0 if not self.main_power or not self.shields_power else 0.3

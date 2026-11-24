@@ -68,10 +68,14 @@ SHIP_SPECS: tuple[MetricSpec, ...] = (
     MetricSpec("speed", "Speed", "speed", (("speed",), ("velocity",)), ("vehicle", "ship"), ("vertical", "climb", "angular")),
     MetricSpec("vertical_speed", "Vertical speed", "speed", (("vertical", "speed"), ("vertical", "velocity"), ("climb",)), ("vehicle", "ship"), ()),
     MetricSpec("radar_altitude", "Radar altitude", "distance", (("radar", "altitude"), ("altitude",), ("agl",)), ("vehicle", "ship"), ()),
-    MetricSpec("g_force", "G-force", "g", (("gforce",), ("g", "force"), ("gload",), ("gee",)), ("vehicle", "ship"), ()),
+    MetricSpec("g_force", "G-force", "g", (("gforce",), ("g", "force"), ("gload",), ("gee",)), ("vehicle", "ship"), ("peak", "max")),
     MetricSpec("hull", "Hull", "ratio", (("hull",),), ("vehicle", "ship"), ("character", "health"), True),
     MetricSpec("boost", "Boost reserve", "ratio", (("boost",),), ("vehicle", "ship"), ("active",), True),
-    MetricSpec("hydrogen", "Hydrogen", "ratio", (("hydrogen",), ("fuel",)), ("vehicle", "ship"), (), True),
+    MetricSpec("hydrogen", "Hydrogen", "ratio", (("hydrogen",), ("fuel",)), ("vehicle", "ship"), ("quantum",), True),
+    MetricSpec("quantum_fuel", "Quantum fuel", "ratio", (("quantum", "fuel"), ("qt", "fuel"), ("quantum", "tank")), ("vehicle", "ship"), (), True),
+    MetricSpec("altitude", "Altitude", "distance", (("altitude", "msl"), ("sea", "level"), ("altitude", "asl"), ("asl",), ("msl",)), ("vehicle", "ship"), ("radar", "agl")),
+    MetricSpec("heading", "Heading", "angle", (("heading",), ("bearing",), ("compass",)), ("vehicle", "ship"), ("turret", "target")),
+    MetricSpec("g_force_peak", "Peak G", "g", (("gforce", "peak"), ("g", "force", "peak"), ("gforce", "max"), ("g", "force", "max")), ("vehicle", "ship"), ()),
 )
 
 TOGGLE_SPECS: tuple[tuple[str, tuple[tuple[str, ...], ...]], ...] = (
@@ -224,6 +228,10 @@ def _format_metric(spec: MetricSpec, value, path: str) -> dict:
             else:
                 unit = "m/s" if ("mps" in tokens or "ms" in tokens or "velocity" in tokens or "speed" in tokens) else ""
                 display = f"{number:.1f}"
+        elif spec.kind == "angle":
+            unit = "°"
+            raw = number % 360
+            display = f"{raw:.0f}"
         elif spec.kind == "g":
             unit = "G"
             display = f"{number:.1f}"

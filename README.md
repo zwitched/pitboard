@@ -12,6 +12,7 @@ Unofficial. Not affiliated with Cloud Imperium Games.
 - Command buttons from `ListTriggerableActions` / `TriggerGameAction` when that build exposes them (5.0 PTU). 4.10.3 LIVE is display only.
 - Hazardous commands (self-destruct, eject, main power off, opening or unlocking doors, ports, and cargo) stay off until you arm them on this PC, and each one still needs a hold to confirm.
 - LAN access off by default. Turning it on is unencrypted and uses a random token.
+- An MFD tab styled like a ship multi-function display: speed and altitude tapes, a G arc, heading tape, fuel, IFCS lights, L1–L5 / R1–R5 soft keys wired to game commands, and pages for power, shields, weapons, comms and config. Readouts the game does not send show `--`. Use FULL for full screen in landscape.
 - A practice gRPC server for tests and for using the board without the game.
 - A session log you can turn on later, and a small extension seam for something like a Stream Deck.
 
